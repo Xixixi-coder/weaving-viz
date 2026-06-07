@@ -11,6 +11,7 @@ html, body, #root {
   background: #1A1A2E;
   font-family: 'PingFang SC', 'Noto Sans SC', -apple-system, sans-serif;
   color: #e0e0e0;
+  touch-action: none;
 }
 
 ::-webkit-scrollbar {
