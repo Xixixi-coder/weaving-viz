@@ -36,7 +36,7 @@ export function tryCreateStuckNode(
   };
 }
 
-export function updateStuckNode(node: StuckNodeState, time: number): void {
+export function updateStuckNode(node: StuckNodeState, _time: number): void {
   if (!node.isRevealed) {
     const elapsed = (performance.now() - node.createdAt) / 1000;
     node.intensity = Math.min(1, elapsed / 2);

@@ -66,7 +66,7 @@ export function updateWeft(
   weft: WeftLine,
   canvasWidth: number,
   dt: number,
-  warpXPositions: number[]
+  _warpXPositions: number[]
 ): boolean {
   weft.progress += weft.speed * dt;
 

@@ -55,7 +55,7 @@ export class WarpThread {
     }
   }
 
-  update(time: number, mouseX: number, mouseY: number) {
+  update(time: number, mouseX: number, _mouseY: number) {
     for (let i = 0; i < this.points.length; i++) {
       const p = this.points[i];
 
