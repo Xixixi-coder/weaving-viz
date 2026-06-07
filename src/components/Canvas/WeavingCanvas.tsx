@@ -52,7 +52,7 @@ export function WeavingCanvas({
       left: 0,
       pointerEvents: interactive ? 'auto' : 'none',
     }}>
-      <canvas ref={canvasRef} style={{ display: 'block' }} />
+      <canvas ref={canvasRef} style={{ display: 'block', touchAction: 'none' }} />
     </div>
   );
 }

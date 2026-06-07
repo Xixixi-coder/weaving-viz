@@ -391,11 +391,85 @@ export function useCanvasRenderer(callbacks: RendererCallbacks) {
       canvas.style.cursor = state.hoveredWarp >= 0 ? 'grab' : 'default';
     };
 
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const mx = touch.clientX - rect.left;
+      const my = touch.clientY - rect.top;
+      const state = stateRef.current;
+      if (!state) return;
+      state.mouseX = mx;
+      state.mouseY = my;
+
+      for (const stuck of state.stuckNodes) {
+        if (!stuck.isRevealed) {
+          const sx = state.warps[stuck.warpIndex].getXAtY(stuck.y);
+          if (Math.abs(mx - sx) < 30 && Math.abs(my - stuck.y) < 30) {
+            stuck.isRevealed = true;
+            callbacks.onStuckClick(stuck);
+            return;
+          }
+        }
+      }
+
+      for (const weft of state.wefts) {
+        for (const node of weft.nodes) {
+          if (node.alpha > 0 && node.activatedAt > 0) {
+            if (Math.abs(mx - node.x) < node.radius + 10 && Math.abs(my - node.y) < node.radius + 10) {
+              node.isFixed = !node.isFixed;
+              callbacks.onNodeClick(node);
+              return;
+            }
+          }
+        }
+      }
+
+      for (let i = 0; i < state.warps.length; i++) {
+        if (state.warps[i].hitTest(mx, my, 30)) {
+          state.hoveredWarp = i;
+          state.draggedWarp = i;
+          state.warps[i].isHovered = true;
+          state.warps[i].startDrag(my);
+          callbacks.onWarpHover(i, mx, my);
+          break;
+        }
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      const mx = touch.clientX - rect.left;
+      const my = touch.clientY - rect.top;
+      const state = stateRef.current;
+      if (!state) return;
+      state.mouseX = mx;
+      state.mouseY = my;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      const state = stateRef.current;
+      if (!state) return;
+      if (state.draggedWarp >= 0) {
+        state.warps[state.draggedWarp].stopDrag();
+        state.warps[state.draggedWarp].isHovered = false;
+        state.draggedWarp = -1;
+        state.hoveredWarp = -1;
+        callbacks.onWarpUnhover();
+      }
+    };
+
     window.addEventListener('resize', handleResize);
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mouseup', handleMouseUp);
     canvas.addEventListener('mouseleave', handleMouseUp);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     animRef.current = requestAnimationFrame(gameLoop);
 
@@ -405,6 +479,9 @@ export function useCanvasRenderer(callbacks: RendererCallbacks) {
       canvas.removeEventListener('mousedown', handleMouseDown);
       canvas.removeEventListener('mouseup', handleMouseUp);
       canvas.removeEventListener('mouseleave', handleMouseUp);
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handleTouchEnd);
       cancelAnimationFrame(animRef.current);
     };
   }, [initState, gameLoop, callbacks]);
