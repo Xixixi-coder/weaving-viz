@@ -5,12 +5,14 @@ import { OnboardingOverlay } from './components/UI/OnboardingOverlay';
 import { StoryCard } from './components/UI/StoryCard';
 import { DataTooltip } from './components/UI/DataTooltip';
 import { Legend } from './components/UI/Legend';
+import { CalculatorEntry } from './components/Calculator/CalculatorEntry';
+import { CalculatorFlow } from './components/Calculator/CalculatorFlow';
 import type { ActiveDataNode } from './engine/WeftShuttle';
 import type { StuckNodeState } from './engine/StuckNode';
 import type { CorrelationResult } from './engine/CorrelationEngine';
 import { STORIES } from './data/stories';
 
-type AppPhase = 'loading' | 'onboarding' | 'main';
+type AppPhase = 'loading' | 'onboarding' | 'main' | 'calculator';
 
 export default function App() {
   const [phase, setPhase] = useState<AppPhase>('loading');
@@ -55,7 +57,7 @@ export default function App() {
   }, []);
 
   const story = activeStory ? STORIES.find(s => s.id === activeStory) : null;
-  const isPaused = !!activeStory;
+  const isPaused = !!activeStory || phase === 'calculator';
   const canvasInteractive = phase === 'main' && !activeStory;
 
   return (
@@ -89,7 +91,7 @@ export default function App() {
       {correlationHint && !activeStory && phase === 'main' && (
         <div style={{
           position: 'fixed',
-          bottom: 24,
+          bottom: 100,
           right: 24,
           background: 'rgba(22,33,62,0.9)',
           border: '1px solid rgba(255,215,0,0.3)',
@@ -105,33 +107,40 @@ export default function App() {
       )}
 
       {phase === 'main' && (
-        <div style={{
-          position: 'fixed',
-          top: 24,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 600,
-          textAlign: 'center',
-          pointerEvents: 'none',
-        }}>
-          <h1 style={{
-            color: 'rgba(255,255,255,0.8)',
-            fontSize: 18,
-            fontWeight: 300,
-            letterSpacing: 6,
-            margin: 0,
+        <>
+          <div style={{
+            position: 'fixed',
+            top: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 600,
+            textAlign: 'center',
+            pointerEvents: 'none',
           }}>
-            编织
-          </h1>
-          <p style={{
-            color: 'rgba(255,255,255,0.4)',
-            fontSize: 11,
-            marginTop: 4,
-            letterSpacing: 2,
-          }}>
-            女性劳动的可见化
-          </p>
-        </div>
+            <h1 style={{
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: 18,
+              fontWeight: 300,
+              letterSpacing: 6,
+              margin: 0,
+            }}>
+              编织
+            </h1>
+            <p style={{
+              color: 'rgba(255,255,255,0.4)',
+              fontSize: 11,
+              marginTop: 4,
+              letterSpacing: 2,
+            }}>
+              女性劳动的可见化
+            </p>
+          </div>
+          <CalculatorEntry onClick={() => setPhase('calculator')} />
+        </>
+      )}
+
+      {phase === 'calculator' && (
+        <CalculatorFlow onExit={() => setPhase('main')} />
       )}
     </div>
   );
