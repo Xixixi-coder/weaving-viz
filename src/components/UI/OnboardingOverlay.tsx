@@ -6,6 +6,7 @@ interface OnboardingOverlayProps {
 
 export function OnboardingOverlay({ onDismiss }: OnboardingOverlayProps) {
   const [step, setStep] = useState(0);
+  const [pressing, setPressing] = useState(false);
 
   const steps = [
     {
@@ -25,28 +26,40 @@ export function OnboardingOverlay({ onDismiss }: OnboardingOverlayProps) {
     },
   ];
 
+  const handleNext = () => {
+    if (step < steps.length - 1) setStep(step + 1);
+    else onDismiss();
+  };
+
   return (
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(26,26,46,0.85)',
+        background: 'rgba(26,26,46,0.92)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 900,
-        backdropFilter: 'blur(4px)',
+        zIndex: 9999,
+        cursor: 'pointer',
+        WebkitTapHighlightColor: 'transparent',
+        userSelect: 'none',
       }}
-      onClick={() => {
-        if (step < steps.length - 1) setStep(step + 1);
-        else onDismiss();
-      }}
+      onClick={handleNext}
+      onMouseDown={() => setPressing(true)}
+      onMouseUp={() => setPressing(false)}
+      onMouseLeave={() => setPressing(false)}
+      onTouchStart={() => setPressing(true)}
+      onTouchEnd={() => setPressing(false)}
     >
       <div style={{
         textAlign: 'center',
         maxWidth: 400,
         padding: 40,
+        transition: 'transform 0.15s, opacity 0.15s',
+        transform: pressing ? 'scale(0.97)' : 'scale(1)',
+        opacity: pressing ? 0.8 : 1,
       }}>
         <div style={{
           fontSize: 48,
@@ -54,6 +67,8 @@ export function OnboardingOverlay({ onDismiss }: OnboardingOverlayProps) {
           opacity: 0.8,
           letterSpacing: 8,
           fontFamily: 'monospace',
+          color: '#fff',
+          transition: 'opacity 0.3s',
         }}>
           {steps[step].icon}
         </div>
@@ -77,20 +92,45 @@ export function OnboardingOverlay({ onDismiss }: OnboardingOverlayProps) {
           {steps[step].desc}
         </p>
 
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 24 }}>
           {steps.map((_, i) => (
             <div key={i} style={{
               width: 8,
               height: 8,
               borderRadius: '50%',
               background: i === step ? '#FF8C42' : 'rgba(255,255,255,0.3)',
-              transition: 'background 0.3s',
+              transition: 'background 0.3s, transform 0.3s',
+              transform: i === step ? 'scale(1.3)' : 'scale(1)',
             }} />
           ))}
         </div>
 
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>
-          {step < steps.length - 1 ? '点击继续' : '点击开始探索'}
+        <button
+          onClick={(e) => { e.stopPropagation(); handleNext(); }}
+          style={{
+            background: 'rgba(255,140,66,0.15)',
+            border: '1px solid rgba(255,140,66,0.5)',
+            color: '#FF8C42',
+            padding: '10px 32px',
+            borderRadius: 24,
+            cursor: 'pointer',
+            fontSize: 14,
+            letterSpacing: 3,
+            transition: 'all 0.2s',
+            marginBottom: 12,
+          }}
+          onMouseEnter={(e) => {
+            (e.target as HTMLElement).style.background = 'rgba(255,140,66,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            (e.target as HTMLElement).style.background = 'rgba(255,140,66,0.15)';
+          }}
+        >
+          {step < steps.length - 1 ? '下一步' : '开始探索'}
+        </button>
+
+        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, marginTop: 8 }}>
+          点击任意位置或按钮继续
         </p>
       </div>
 
@@ -107,6 +147,15 @@ export function OnboardingOverlay({ onDismiss }: OnboardingOverlayProps) {
           borderRadius: 20,
           cursor: 'pointer',
           fontSize: 13,
+          transition: 'all 0.2s',
+        }}
+        onMouseEnter={(e) => {
+          (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.6)';
+          (e.target as HTMLElement).style.color = '#fff';
+        }}
+        onMouseLeave={(e) => {
+          (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,0.3)';
+          (e.target as HTMLElement).style.color = 'rgba(255,255,255,0.6)';
         }}
       >
         跳过

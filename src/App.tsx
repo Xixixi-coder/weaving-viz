@@ -56,6 +56,7 @@ export default function App() {
 
   const story = activeStory ? STORIES.find(s => s.id === activeStory) : null;
   const isPaused = !!activeStory;
+  const canvasInteractive = phase === 'main' && !activeStory;
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
@@ -71,6 +72,7 @@ export default function App() {
             onStuckClick={handleStuckClick}
             onCorrelationChange={handleCorrelationChange}
             isPaused={isPaused}
+            interactive={canvasInteractive}
           />
           <Legend />
           <DataTooltip

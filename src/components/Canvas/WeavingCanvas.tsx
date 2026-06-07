@@ -11,6 +11,7 @@ interface WeavingCanvasProps {
   onStuckClick: (stuck: StuckNodeState) => void;
   onCorrelationChange: (results: CorrelationResult[]) => void;
   isPaused: boolean;
+  interactive?: boolean;
 }
 
 export function WeavingCanvas({
@@ -20,6 +21,7 @@ export function WeavingCanvas({
   onStuckClick,
   onCorrelationChange,
   isPaused,
+  interactive = true,
 }: WeavingCanvasProps) {
   const callbacksRef = useRef({ onWarpHover, onWarpUnhover, onNodeClick, onStuckClick, onCorrelationChange });
   callbacksRef.current = { onWarpHover, onWarpUnhover, onNodeClick, onStuckClick, onCorrelationChange };
@@ -42,7 +44,14 @@ export function WeavingCanvas({
   }
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      pointerEvents: interactive ? 'auto' : 'none',
+    }}>
       <canvas ref={canvasRef} style={{ display: 'block' }} />
     </div>
   );
